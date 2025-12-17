@@ -12,8 +12,15 @@ type CornerDotType = 'dot' | 'square' | 'rounded' | 'dots' | 'classy' | 'classy-
 type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H';
 type GradientType = 'linear' | 'radial';
 type ShapeType = 'square' | 'circle';
+type DataType = 'text' | 'wifi';
 
 const QRDesigner: React.FC = () => {
+	const [dataType, setDataType] = useState<DataType>('text');
+	const [textData, setTextData] = useState<string>('https://qr-code-styling.com');
+	const [wifiSsid, setWifiSsid] = useState<string>('');
+	const [wifiPassword, setWifiPassword] = useState<string>('');
+	const [wifiEncryption, setWifiEncryption] = useState<'WPA' | 'WEP' | 'nopass'>('WPA');
+	const [wifiHidden, setWifiHidden] = useState<boolean>(false);
 	const [imageFile, setImageFile] = useState<string>('');
 	const [options, setOptions] = useState<Options>({
 		width: 300,
@@ -86,6 +93,16 @@ const QRDesigner: React.FC = () => {
 		}
 	}, [options]);
 
+	useEffect(() => {
+		let qrData = '';
+		if (dataType === 'text') {
+			qrData = textData;
+		} else if (dataType === 'wifi') {
+			qrData = `WIFI:T:${wifiEncryption};S:${wifiSsid};P:${wifiPassword};H:${wifiHidden};`;
+		}
+		updateOption('data', qrData);
+	}, [dataType, textData, wifiSsid, wifiPassword, wifiEncryption, wifiHidden]);
+
 	const updateOption = <K extends keyof Options>(key: K, value: Options[K]) => {
 		setOptions((prev: Options) => ({ ...prev, [key]: value }));
 	};
@@ -154,17 +171,76 @@ const QRDesigner: React.FC = () => {
 							{expandedSections.main && (
 								<CardContent className="space-y-4 pt-4 border-t animate-in slide-in-from-top-2">
 									<div className="space-y-2">
-										<Label htmlFor="data" className="font-semibold text-sm">Data / URL *</Label>
-										<Input
-											id="data"
-											type="text"
-											value={options.data}
-											onChange={(e) => updateOption('data', e.target.value)}
-											placeholder="https://example.com"
-											className="font-mono text-sm"
-										/>
+										<Label htmlFor="dataType" className="font-semibold text-sm">Data Type *</Label>
+										<select
+											id="dataType"
+											className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+											value={dataType}
+											onChange={(e) => setDataType(e.target.value as DataType)}
+										>
+											<option value="text">URL / Text</option>
+											<option value="wifi">WiFi</option>
+										</select>
 									</div>
-
+									{dataType === 'text' && (
+										<div className="space-y-2">
+											<Label htmlFor="textData" className="font-semibold text-sm">Data / URL *</Label>
+											<Input
+												id="textData"
+												type="text"
+												value={textData}
+												onChange={(e) => setTextData(e.target.value)}
+												placeholder="https://example.com"
+												className="font-mono text-sm"
+											/>
+										</div>
+									)}							
+									{dataType === 'wifi' && (
+										<div className="space-y-4 bg-blue-50/50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+											<div className="space-y-2">
+												<Label htmlFor="wifiSsid" className="font-semibold text-sm">WiFi SSID *</Label>
+												<Input
+													id="wifiSsid"
+													type="text"
+													value={wifiSsid}
+													onChange={(e) => setWifiSsid(e.target.value)}
+													placeholder="My Network"
+													className="font-mono text-sm"
+												/>
+											</div>									<div className="space-y-2">
+												<Label htmlFor="wifiPassword" className="font-semibold text-sm">Password *</Label>
+												<Input
+													id="wifiPassword"
+													type="text"
+													value={wifiPassword}
+													onChange={(e) => setWifiPassword(e.target.value)}
+													placeholder="WiFi password"
+													className="font-mono text-sm"
+												/>
+											</div>									<div className="space-y-2">
+												<Label htmlFor="wifiEncryption" className="font-semibold text-sm">Encryption Type</Label>
+												<select
+													id="wifiEncryption"
+													className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+													value={wifiEncryption}
+													onChange={(e) => setWifiEncryption(e.target.value as 'WPA' | 'WEP' | 'nopass')}
+												>
+													<option value="WPA">WPA/WPA2/WPA3</option>
+													<option value="WEP">WEP</option>
+													<option value="nopass">No Password</option>
+												</select>
+											</div>									<div className="flex items-center space-x-2">
+												<input
+													type="checkbox"
+													id="wifiHidden"
+													className="h-4 w-4 rounded border-gray-300"
+													checked={wifiHidden}
+													onChange={(e) => setWifiHidden(e.target.checked)}
+												/>
+												<Label htmlFor="wifiHidden" className="text-sm cursor-pointer">Hidden Network</Label>
+											</div>
+										</div>
+									)}									
 									<div className="space-y-2">
 										<Label htmlFor="image" className="font-semibold text-sm">Logo Image Upload</Label>
 										<Input
@@ -191,7 +267,6 @@ const QRDesigner: React.FC = () => {
 											</div>
 										)}
 									</div>
-
 									<div className="grid grid-cols-2 gap-4">
 										<div className="space-y-2">
 											<Label htmlFor="width" className="font-semibold text-sm">Width</Label>

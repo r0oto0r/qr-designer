@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+	"lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "docker": "npm install && npm run build && npm run docker-build && npm run docker-tag-latest && npm run docker-push-latest",
     "docker-build": "docker build -t qr-designer .",

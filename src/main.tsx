@@ -6,10 +6,10 @@ import React from 'react';
 
 createRoot(document.getElementById('root')!).render(
 	<React.Fragment>
-			<BrowserRouter>
-				<main className="w-full mx-auto" style={{ maxWidth: "80rem" }}>
-					<App />
-				</main>
-			</BrowserRouter>
+		<BrowserRouter>
+			<main className="w-full mx-auto" style={{ maxWidth: "80rem" }}>
+				<App />
+			</main>
+		</BrowserRouter>
 	</React.Fragment>,
 );
