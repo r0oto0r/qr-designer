@@ -1,0 +1,73 @@
+##
+## QR Designer
+##
+#
+# Namespace
+#
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: qr-designer
+---
+#
+# Deployment
+#
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: qr-designer
+  namespace: qr-designer
+  labels:
+    app: qr-designer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qr-designer
+  template:
+    metadata:
+      labels:
+        app: qr-designer
+    spec:
+      containers:
+        - image: ghcr.io/r0oto0r/qr-designer:latest
+          imagePullPolicy: Always
+          name: qr-designer
+          ports:
+          - containerPort: 80
+#
+# Service
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qr-designer
+  namespace: qr-designer
+spec:
+  selector:
+    app: qr-designer
+  ports:
+  - port: 80
+---
+#
+# Ingress
+#
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: qr-designer-ingress
+  namespace: qr-designer
+  annotations:
+spec:
+  rules:
+  - host: qr-designer.intern
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: qr-designer
+            port:
+              number: 80
